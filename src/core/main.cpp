@@ -19,7 +19,7 @@ WebServer server(80);
 unsigned long timeStart = 0.0;
 ExerciseState E = ExerciseState::IDLE;
 
-U8G2_SSD1306_128X64_NONAME_F_HW_I2C display(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
+// U8G2_SSD1306_128X64_NONAME_F_HW_I2C display(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
 
 // HTML-Seite
 const char* htmlPage = R"rawliteral(
@@ -81,7 +81,7 @@ void setup() {
         NULL              // Task-Handle
     );
 
-    display.begin();
+    // display.begin();
     unsigned long currentMillis = millis();
     timeStart = currentMillis;
 }
@@ -109,14 +109,14 @@ void timerTask(void* parameter) {
         E = ExerciseState::IDLE;
 
     } else if(E == ExerciseState::IDLE) {
-
+        LOG_COLOR_D("TimerTask: IDLE state - waiting for start command.\n");
         // Warte auf Startbefehl
-        timeStart = millis();
-        display.clearBuffer();                 // Puffer löschen
-        display.setFont(u8g2_font_ncenB08_tr); // Schriftart setzen
-        display.drawStr(0, 10, "Hello World!"); // Text zeichnen
-        display.sendBuffer();                  // Pufferinhalt anzeigen
-        delay(1000);    
+        // timeStart = millis();
+        // display.clearBuffer();                 // Puffer löschen
+        // display.setFont(u8g2_font_ncenB08_tr); // Schriftart setzen
+        // display.drawStr(0, 10, "Hello World!"); // Text zeichnen
+        // display.sendBuffer();                  // Pufferinhalt anzeigen
+        // delay(1000);    
     }
 }
 
