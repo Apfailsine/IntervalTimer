@@ -14,6 +14,24 @@ enum class ButtonState
     EXTRA_LONG_PRESS,
 };
 
+enum class RepState
+{
+    PRE,
+    POST,
+    IN_PROGRESS,
+    SET_PAUSE,
+};
+
+struct ExerciseRuntime {
+    size_t setIndex = 0;
+    size_t repIndex = 0;
+    RepState phase = RepState::PRE;
+    unsigned long phaseStart = 0;
+    unsigned long pauseOffset = 0;
+    bool paused = false;
+    bool active = false;
+};
+
 enum class ExerciseState
 {
     STARTED,

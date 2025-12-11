@@ -19,5 +19,9 @@ extern BoardService boardService;
 extern StorageService storageService;
 extern WebService webService;
 
+unsigned long timePrev = 0;
+unsigned long timePauseStart = 0;
+unsigned long now = 0;
+unsigned long timeRep = 0;
 
 #endif // GLOBALS_H
