@@ -23,10 +23,8 @@ const char* password = "12345678";
 // Webserver auf Port 80
 WebServer server(80);
 
-unsigned long timeStart = 0.0;
 ExerciseState E = ExerciseState::IDLE;
 WifiState W = WifiState::INACTIVE;
-RepState R = RepState::PRE;
 static ExerciseRuntime runtime;
 
 namespace {
@@ -34,16 +32,16 @@ StorageService::ExerciseId g_selectedExerciseId{};
 bool g_hasSelectedExercise = false;
 
 void logSelectedExercise(const StorageService::ExerciseRecord& record) {
-    Serial.printf("[Button] Selected exercise: %s (%u sets)\n",
-                  record.exercise.name.c_str(),
-                  static_cast<unsigned>(record.exercise.sets.size()));
+    // Serial.printf("[Button] Selected exercise: %s (%u sets)\n",
+    //               record.exercise.name.c_str(),
+    //               static_cast<unsigned>(record.exercise.sets.size()));
     for (size_t setIndex = 0; setIndex < record.exercise.sets.size(); ++setIndex) {
         const Set& set = record.exercise.sets[setIndex];
-        Serial.printf("  Set %u (%s): intensity=%d%%, reps=%u\n",
-                      static_cast<unsigned>(setIndex + 1),
-                      set.label.c_str(),
-                      set.percentMaxIntensity,
-                      static_cast<unsigned>(set.reps.size()));
+        // Serial.printf("  Set %u (%s): intensity=%d%%, reps=%u\n",
+        //               static_cast<unsigned>(setIndex + 1),
+        //               set.label.c_str(),
+        //               set.percentMaxIntensity,
+        //               static_cast<unsigned>(set.reps.size()));
     }
 }
 } // namespace
@@ -65,13 +63,13 @@ void timerTask(void* parameter) {
                     // Hier die Logik zum Verarbeiten der Übung implementieren
                     doExerciseStep(*exercise, now);
                 } else {
-                    Serial.println("[TimerTask] Ausgewählte Übung nicht mehr verfügbar.");
+                    // Serial.println("[TimerTask] Ausgewählte Übung nicht mehr verfügbar.");
                     g_hasSelectedExercise = false;
                     E = ExerciseState::IDLE;
                     displayService.showStatus("Keine Übung", "Bitte auswählen");
                 }
             } else {
-                Serial.println("[TimerTask] Keine Übung ausgewählt.");
+                // Serial.println("[TimerTask] Keine Übung ausgewählt.");
                 E = ExerciseState::IDLE;
                 displayService.showStatus("Bereit", "Button drücken");
             }
@@ -79,7 +77,7 @@ void timerTask(void* parameter) {
         } else if (E == ExerciseState::PAUSED) {
             // Übung pausiert, nichts tun
             pauseExercise(now);
-            LOG_COLOR_D("TimerTask: PAUSED state - exercise is paused.\n");
+            // LOG_COLOR_D("TimerTask: PAUSED state - exercise is paused.\n");
             displayService.setLine(1, "PAUSE", u8g2_font_ncenB24_tr, 48);
             displayService.refresh();
 
@@ -93,28 +91,11 @@ void timerTask(void* parameter) {
             // displayService.showStatus("Gestoppt", "Button: Start");
 
         } else if (E == ExerciseState::IDLE) {
-            LOG_COLOR_D("TimerTask: IDLE state - waiting for start command.\n");
+            // LOG_COLOR_D("TimerTask: IDLE state - waiting for start command.\n");
             // Warte auf Startbefehl
             timePrev = millis();
             displayService.chooseExercise(storageService.findExercise(g_selectedExerciseId), W);
         }
-
-        // if (const Exercise* last = webService.lastExercise()) {
-        //     Serial.printf("[TimerTask] Last exercise: %s, sets=%u\n",
-        //                   last->name.c_str(),
-        //                   static_cast<unsigned>(last->sets.size()));
-        //     for (size_t i = 0; i < last->sets.size(); ++i) {
-        //         const Set& set = last->sets[i];
-        //         Serial.printf("  Set %u (%s): intensity=%d%%, reps=%u\n",
-        //                       static_cast<unsigned>(i + 1),
-        //                       set.label.c_str(),
-        //                       set.percentMaxIntensity,
-        //                       static_cast<unsigned>(set.reps.size()));
-        //     }
-        // } else {
-        //     Serial.println("[TimerTask] No exercise stored yet.");
-        // }
-
         vTaskDelay(25 / portTICK_PERIOD_MS);
     }
 }
@@ -128,13 +109,13 @@ void webServerTask(void* parameter) {
 
                 WiFi.mode(WIFI_AP);
                 WiFi.softAP(ssid, password);
-                Serial.println("Access Point gestartet!");
-                Serial.print("IP-Adresse: ");
+                // Serial.println("Access Point gestartet!");
+                // Serial.print("IP-Adresse: ");
                 Serial.println(WiFi.softAPIP());
 
                 webService.registerRoutes(server);
                 server.begin();
-                Serial.println("Webserver gestartet!");
+                // Serial.println("Webserver gestartet!");
                 apActive = true;
             }
 
@@ -145,7 +126,7 @@ void webServerTask(void* parameter) {
                 server.stop();
                 WiFi.softAPdisconnect(true);
                 WiFi.mode(WIFI_OFF);
-                Serial.println("Access Point gestoppt.");
+                // Serial.println("Access Point gestoppt.");
                 apActive = false;
             }
 
@@ -163,15 +144,11 @@ void buttonTask(void* parameter) {
     for (;;) {
 
         const auto *buttons = boardService.getButtons();
-        // handleButtonLogic(buttons); 
 
-
-        // TODO: Button handling und State-Wechsel implementieren
         // load first exercise from storage
         
         const auto& records = storageService.exercises();
 
-        
         // bei short press:
         switch(*buttons)
         {
@@ -186,15 +163,15 @@ void buttonTask(void* parameter) {
                     logSelectedExercise(record);
                     // displayService.showStatus("Übung", record.exercise.name.c_str());
                 } else {
-                    Serial.println("[Button] Keine gespeicherten Übungen vorhanden.");
+                    // Serial.println("[Button] Keine gespeicherten Übungen vorhanden.");
                     // displayService.showStatus("Keine Übungen", "Web anlegen");
                 }
            }
            else if(E == ExerciseState::PAUSED){
-                Serial.println("[Button] Setze Übung fort.");
+                // Serial.println("[Button] Setze Übung fort.");
                 E = ExerciseState::STARTED;
            } else if(E == ExerciseState::STARTED){
-                Serial.println("[Button] Pausiere Übung.");
+                // Serial.println("[Button] Pausiere Übung.");
                 E = ExerciseState::PAUSED;
            }
             break;
@@ -203,7 +180,7 @@ void buttonTask(void* parameter) {
            if (E == ExerciseState::IDLE){
                 if (g_hasSelectedExercise) {
                     if (const Exercise* exercise = storageService.findExercise(g_selectedExerciseId)) {
-                        Serial.printf("[Button] Starte Übung: %s\n", exercise->name.c_str());
+                        // Serial.printf("[Button] Starte Übung: %s\n", exercise->name.c_str());
                         // Hier muss die Übung Starten oder ein Flag gesetzt werden
                         E = ExerciseState::STARTED;
                         // Kann ich außerhalb auf den recied zugreifen?
@@ -212,14 +189,14 @@ void buttonTask(void* parameter) {
                         runtime.phaseStart = millis();
                         // displayService.showStatus("Start", exercise->name.c_str());
                     } else {
-                        Serial.println("[Button] Ausgewählte Übung nicht mehr verfügbar.");
+                        // Serial.println("[Button] Ausgewählte Übung nicht mehr verfügbar.");
                         g_hasSelectedExercise = false;
                         // displayService.showStatus("Übung fehlt", "Bitte wählen");
                     }
                 }
            } else {
                if (const Exercise* exercise = storageService.findExercise(g_selectedExerciseId)){
-                   Serial.printf("[Button] Stoppe Übung: %s\n", exercise->name.c_str());
+                //    Serial.printf("[Button] Stoppe Übung: %s\n", exercise->name.c_str());
                     // displayService.showStatus("Gestoppt", exercise->name.c_str());
                 }
                 g_hasSelectedExercise = false;
@@ -229,7 +206,7 @@ void buttonTask(void* parameter) {
         case ButtonState::EXTRA_LONG_PRESS:
             // currently not used
             W = (W == WifiState::INACTIVE) ? WifiState::ACTIVE : WifiState::INACTIVE;
-            Serial.printf("[Button] WiFi %s\n", W == WifiState::ACTIVE ? "aktiv" : "inaktiv");
+            // Serial.printf("[Button] WiFi %s\n", W == WifiState::ACTIVE ? "aktiv" : "inaktiv");
             break;
         case ButtonState::NO_PRESS:
         default:
@@ -243,14 +220,15 @@ void buttonTask(void* parameter) {
 void setup() {
     Serial.begin(115200);
     delay(500);
-    Serial.println("Booting IntervalTimer...");
+    // g_serialLoggingEnabled = Serial;
+    // Serial.println("Booting IntervalTimer...");
 
     displayService.begin();
     // displayService.showBootScreen();
 
     if (!storageService.loadPersistent()) {
-        Serial.println("[Setup] Konnte gespeicherte Übungen nicht laden.");
-        displayService.showStatus("Speicher", "Keine Daten");
+        // Serial.println("[Setup] Konnte gespeicherte Übungen nicht laden.");
+        // displayService.showStatus("Speicher", "Keine Daten");
     }
 
     // Webserver-Task starten
@@ -284,34 +262,6 @@ void setup() {
     );
 
     unsigned long currentMillis = millis();
-    timeStart = currentMillis;
-}
-
-void handleButtonLogic(const ButtonState *buttons)
-{
-
-    switch ((*buttons)) // Check the state of the button
-    {
-    case ButtonState::SHORT_PRESS:
-        Serial.println("main - handleButtonLogic Button short-press");
-        
-        break;
-
-    case ButtonState::LONG_PRESS:
-        Serial.println("main - handleButtonLogic Button long-press");
-        break;
-
-    case ButtonState::EXTRA_LONG_PRESS:
-        Serial.println("main - handleButtonLogic Button extra-long-press");
-        
-        break;
-
-    case ButtonState::NO_PRESS:
-    default:
-        // Do nothing if no press
-        break;
-    }
-    
 }
 
 void printTimer(unsigned long timeMillis, String label)
@@ -322,7 +272,7 @@ void printTimer(unsigned long timeMillis, String label)
     unsigned long decimals = (timeMillis % 1000) / 10;
     char timeString[9];
     sprintf(timeString, "%02lu:%02lu:%02lu", minutes, seconds, decimals);
-    Serial.printf("Timer %s: %s\n", label.c_str(), timeString);
+    // Serial.printf("Timer %s: %s\n", label.c_str(), timeString);
     const char* headline = label.length() > 0 ? label.c_str() : "Timer";
     // displayService.showCountdown(headline, timeMillis);
 }

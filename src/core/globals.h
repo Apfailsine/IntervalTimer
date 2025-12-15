@@ -25,5 +25,6 @@ extern unsigned long timePrev;
 extern unsigned long timePauseStart;
 extern unsigned long now;
 extern unsigned long timeRep;
+extern bool g_serialLoggingEnabled;
 
 #endif // GLOBALS_H
