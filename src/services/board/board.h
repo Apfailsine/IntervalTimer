@@ -20,7 +20,7 @@ private:
     ButtonState buttonState_;
     
     // pin assignment, defined in board.cpp
-    static constexpr int kButtonPin = 10; // D10 on XIAO ESP32C3 = GPIO10
+    static constexpr int kButtonPin = 2; // D0 on XIAO ESP32C3 = GPIO1
     int SW1_PIN = -1;        // Pin connected to Switch1
     int SW2_PIN = -1;        // Pin connected to Switch1
     

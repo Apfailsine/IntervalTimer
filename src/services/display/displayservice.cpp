@@ -45,9 +45,10 @@ void DisplayService::clear() {
 }
 
 void DisplayService::chooseExercise(const Exercise* exercise, WifiState wifiState) {
+    clearLines();
     String exerciseName = exercise ? String(exercise->name.c_str()) : String("Keine Uebung gewählt");
     const char* wifiText = (wifiState == WifiState::ACTIVE) ? "WiFi: Aktiv" : "WiFi: Inaktiv";
-    
+
     configureLine(0, 20, u8g2_font_crox1tb_tf );   // 9px Schrift
     configureLine(1, 46, u8g2_font_crox5tb_tf);     // 16px Schrift
     configureLine(2, 64, u8g2_font_crox1tb_tf );     // 9px für WiFi-Status
@@ -75,8 +76,8 @@ void DisplayService::playTimer(const Exercise* exercise, unsigned long timeMilli
         topText = "Set Pause";
     }
     const char* wifiText = (wifiState == WifiState::ACTIVE) ? "WiFi: Aktiv" : "WiFi: Inaktiv";
-    const char* pauseText = runtime.paused ? " PAUSED" : "";
-    String setRepPercentText = "Set " + String(runtime.setIndex + 1) + " Rep " + String(runtime.repIndex + 1) + " " + String(exercise->sets[runtime.setIndex].percentMaxIntensity) + "%";
+    const char* pauseText = runtime.paused ? " PAUSED" : "      ";
+    String setRepPercentText = "Set" + String(runtime.setIndex + 1) + "     Rep" + String(runtime.repIndex + 1) + "     " + String(exercise->sets[runtime.setIndex].percentMaxIntensity) + "%";
 
     unsigned long totalSeconds = timeMillis / 1000;
     unsigned long minutes = totalSeconds / 60;
@@ -93,7 +94,7 @@ void DisplayService::playTimer(const Exercise* exercise, unsigned long timeMilli
     configureLine(4, 64, u8g2_font_crox1tb_tf ); // 9px Schrift
 
     setLine(0, topText, false);
-    setLine(1, "mm  :   ss  :   cc", false);
+    setLine(1, "mm   :    ss   :    cc", false);
     setLine(2, String(timeString), false);
     setLine(3, setRepPercentText, false);
     setLine(4, pauseText + String("             ") + wifiText, false);

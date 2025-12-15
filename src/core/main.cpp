@@ -10,6 +10,7 @@
 
 // declaration of functions
 void printTimer(unsigned long timeMillis, String label = "");
+void resetRuntime();
 void resumeExercise(unsigned long now);
 void doExerciseStep(const Exercise& exercise, unsigned long now);
 static unsigned long elapsedMs(unsigned long now, unsigned long since);
@@ -79,17 +80,17 @@ void timerTask(void* parameter) {
             // Übung pausiert, nichts tun
             pauseExercise(now);
             LOG_COLOR_D("TimerTask: PAUSED state - exercise is paused.\n");
-            displayService.setLine(1, "PAUSED", u8g2_font_ncenB24_tr, 48);
+            displayService.setLine(1, "PAUSE", u8g2_font_ncenB24_tr, 48);
             displayService.refresh();
 
         } else if (E == ExerciseState::STOPPED) {
             // Übung gestoppt, alles zurücksetzen
             // displayTime(0);
             // Reset aller Variablen und anzeige Stopped
-            runtime.active = false;
-            runtime.paused = false;
+            resetRuntime();
+
             E = ExerciseState::IDLE;
-            displayService.showStatus("Gestoppt", "Button: Start");
+            // displayService.showStatus("Gestoppt", "Button: Start");
 
         } else if (E == ExerciseState::IDLE) {
             LOG_COLOR_D("TimerTask: IDLE state - waiting for start command.\n");
@@ -183,7 +184,7 @@ void buttonTask(void* parameter) {
                     g_selectedExerciseId = record.id;
                     g_hasSelectedExercise = true;
                     logSelectedExercise(record);
-                    displayService.showStatus("Übung", record.exercise.name.c_str());
+                    // displayService.showStatus("Übung", record.exercise.name.c_str());
                 } else {
                     Serial.println("[Button] Keine gespeicherten Übungen vorhanden.");
                     // displayService.showStatus("Keine Übungen", "Web anlegen");
@@ -349,7 +350,7 @@ void doExerciseStep(const Exercise& exercise, unsigned long now) {
             runtime.phaseStart = now;
         } else {
             // display "Get Ready" with countdown
-            printTimer(3000UL - elapsed, "Get Ready");
+            // printTimer(3000UL - elapsed, "Get Ready");
             displayService.playTimer(&exercise, 3000UL - elapsed, runtime, W);
             
         }
@@ -360,47 +361,55 @@ void doExerciseStep(const Exercise& exercise, unsigned long now) {
             runtime.phaseStart = now;
         } else {
             // display "Exercise" with countdown and intensity
-            printTimer(rep.timeRep * 1000UL - elapsed, "Exercise");
+            // printTimer(rep.timeRep * 1000UL - elapsed, "Exercise");
             displayService.playTimer(&exercise, rep.timeRep * 1000UL - elapsed, runtime, W);
         }
         break;
     case RepState::POST:
-        if (elapsed >= rep.timeRest * 1000UL) {
-            // zur nächsten Rep (ggf. Setwechsel, Pause nach Set usw.)
-            if (++runtime.repIndex < set.reps.size()) {
+
+        if(runtime.repIndex + 1 < set.reps.size()){
+            if (elapsed >= rep.timeRest * 1000UL) {
+                // zur nächsten Rep
+                runtime.repIndex++;
                 runtime.phase = RepState::PRE;
                 runtime.phaseStart = now;
             } else {
-                // Set erledigt → Set-Pause einleiten
-                runtime.phase = RepState::SET_PAUSE;      // zusätzlicher Zustand
-                runtime.phaseStart = now;
-                runtime.repIndex = 0;
+                // printTimer(rep.timeRest * 1000UL - elapsed, "Rest");
+                displayService.playTimer(&exercise, rep.timeRest * 1000UL - elapsed, runtime, W);
+                 // display "Rest" with countdown
             }
         } else {
-            printTimer(rep.timeRest * 1000UL - elapsed, "Rest");
-            displayService.playTimer(&exercise, rep.timeRest * 1000UL - elapsed, runtime, W);
-             // display "Rest" with countdown
+            // Set erledigt → Set-Pause einleiten
+            runtime.phase = RepState::SET_PAUSE;      // zusätzlicher Zustand
+            runtime.phaseStart = now;
+            runtime.repIndex = 0;
         }
+
         break;
     case RepState::SET_PAUSE:
-        if (elapsed >= set.timePauseAfter * 1000UL) {
-            if (++runtime.setIndex + 1 < exercise.sets.size()) {
+        if (runtime.setIndex + 1 < exercise.sets.size()){
+            if (elapsed >= set.timePauseAfter * 1000UL) {
+                runtime.setIndex++;
+                runtime.repIndex = 0;
                 runtime.phase = RepState::PRE;
                 runtime.phaseStart = now;
-            } else {
-                // gesamte Übung fertig
-                runtime.active = false;
-                E = ExerciseState::STOPPED;
-                Serial.println("Exercise completed. Gut gemacht! :)");
-                // displayService.showStatus("Fertig!", "Gut gemacht! :)");
-                delay(2000);
+            }
+            else {
+                // printTimer(set.timePauseAfter * 1000UL - elapsed, "Set Pause");
+                displayService.playTimer(&exercise, set.timePauseAfter * 1000UL - elapsed, runtime, W);
+                // display "Set Pause" with countdown
             }
         } else {
-            printTimer(set.timePauseAfter * 1000UL - elapsed, "Set Pause");
-            displayService.playTimer(&exercise, set.timePauseAfter * 1000UL - elapsed, runtime, W);
-             // display "Set Pause" with countdown
+            // gesamte Übung fertig
+            runtime.active = false;
+            E = ExerciseState::STOPPED;
+            // Serial.println("Exercise completed. Gut gemacht! :)");
+            displayService.showStatus("Fertig!", "Gut gemacht! :)");
+            delay(2000);
+
         }
-    break;
+
+        break;
     }
 }
 
@@ -415,5 +424,13 @@ void pauseExercise(unsigned long now) {
 }
 
 
-
+void resetRuntime() {
+    runtime.active = false;
+    runtime.paused = false;
+    runtime.setIndex = 0;
+    runtime.repIndex = 0;
+    runtime.phase = RepState::PRE;
+    runtime.phaseStart = 0;
+    runtime.pauseOffset = 0;
+}
 
