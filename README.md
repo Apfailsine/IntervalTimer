@@ -54,7 +54,7 @@ Store custom Hangboard exercises via WiFi.
 4. Open a browser and navigate to `192.168.4.1`.
 5. Add exercises via the web interface.
 
-![IMG_8727](./assets/IMG_8727.jpg)
+<img src="./assets/IMG_8727.jpg" width="300">
 
 ### Select Exercise
 - **Short press**: Browse saved exercises.
@@ -63,5 +63,6 @@ Store custom Hangboard exercises via WiFi.
 - **Short press**: Pause the timer.
 - **Long press** (1-3 seconds): Stop the timer.
 
+<img src="./assets/IMG_8739.JPG" width="300">
 ![IMG_8733](./assets/IMG_8739.JPG)
 ### Other Features
