@@ -14,7 +14,7 @@ Store custom Hangboard exercises via WiFi.
 - **Display**: 128x64px 0.96" OLED Display
   - Example: [Reichelt OLED Display](https://www.reichelt.de/de/de/shop/produkt/arduino_-_display_0_96_oled-display_ssd1306-320600)
 - **Button**: Standard 2-pin button (6x6x4mm)
-- **Lever**: two-position lever switch (found in my desk )
+- **Lever**: two-position lever switch (found in my desk)
 - **Battery**: EREMIT 653040, 3.7V 800mAh LiPo Battery
 
 ### Layout
@@ -43,7 +43,7 @@ Store custom Hangboard exercises via WiFi.
 
 ### Assembly
 - Use a 3D-printed case (PLA). STL files are available in the `stls` folder.
-- tbf the Assembly was a pain in the ass because I decided to do maximum space optimization, but the wires are all over the place, so feel free to design a bigger case
+- Tbf the Assembly was a pain in the ass because I decided to do maximum space optimization, and the wires are all over the place, so feel free to design a bigger case
 <img src="./assets/ass.jpg" width="600">
 
 ---
